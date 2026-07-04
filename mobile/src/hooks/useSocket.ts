@@ -27,6 +27,8 @@ type PendingJoin = {
 };
 
 const JOIN_TIMEOUT_MS = 10000;
+const SERVER_UNREACHABLE_MESSAGE =
+  "Cannot connect to realtime server. Check EXPO_PUBLIC_SOCKET_URL, WiFi, and whether the server is running.";
 
 export function useSocket() {
   const socketRef = useRef<Socket | null>(null);
@@ -83,8 +85,9 @@ export function useSocket() {
 
       socket.on("connect_error", (error) => {
         setConnectionStatus("error");
-        setErrorMessage(error.message);
-        rejectPendingJoin(error.message);
+        const message = error.message ? `${SERVER_UNREACHABLE_MESSAGE} (${error.message})` : SERVER_UNREACHABLE_MESSAGE;
+        setErrorMessage(message);
+        rejectPendingJoin(message);
       });
 
       socket.io.on("reconnect_attempt", () => {
@@ -97,7 +100,11 @@ export function useSocket() {
 
       socket.io.on("reconnect_error", (error) => {
         setConnectionStatus("error");
-        setErrorMessage(error.message);
+        setErrorMessage(
+          error.message
+            ? `Realtime reconnect failed. Check network and server status. (${error.message})`
+            : "Realtime reconnect failed. Check network and server status.",
+        );
       });
 
       socket.on("room_users", (payload: RoomUsersPayload) => {
@@ -199,8 +206,8 @@ export function useSocket() {
         const timeoutId = setTimeout(() => {
           pendingJoinRef.current = null;
           setConnectionStatus("error");
-          setErrorMessage("Join room timed out. Check server URL and network.");
-          reject(new Error("Join room timed out. Check server URL and network."));
+          setErrorMessage(SERVER_UNREACHABLE_MESSAGE);
+          reject(new Error(SERVER_UNREACHABLE_MESSAGE));
         }, JOIN_TIMEOUT_MS);
 
         pendingJoinRef.current = {

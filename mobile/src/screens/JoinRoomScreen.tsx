@@ -21,6 +21,23 @@ type JoinRoomScreenProps = {
 const NAME_MAX_LENGTH = 24;
 const ROOM_ID_MAX_LENGTH = 32;
 
+function getStatusLabel(status: ConnectionStatus): string {
+  switch (status) {
+    case "connecting":
+      return "Connecting to realtime server...";
+    case "connected":
+      return "Connected";
+    case "disconnected":
+      return "Disconnected";
+    case "reconnecting":
+      return "Reconnecting...";
+    case "error":
+      return "Connection error";
+    default:
+      return "Idle";
+  }
+}
+
 export function JoinRoomScreen({
   connectionStatus,
   errorMessage,
@@ -117,11 +134,22 @@ export function JoinRoomScreen({
           {isConnecting ? (
             <ActivityIndicator color="#ffffff" />
           ) : (
-            <Text style={styles.buttonText}>Join Room</Text>
+          <Text style={styles.buttonText}>Join Room</Text>
           )}
         </Pressable>
 
-        <Text style={styles.status}>Connection: {connectionStatus}</Text>
+        <View style={styles.statusRow}>
+          <View
+            style={[
+              styles.statusDot,
+              connectionStatus === "connected" && styles.statusDotConnected,
+              (connectionStatus === "connecting" || connectionStatus === "reconnecting") &&
+                styles.statusDotPending,
+              connectionStatus === "error" && styles.statusDotError,
+            ]}
+          />
+          <Text style={styles.status}>{getStatusLabel(connectionStatus)}</Text>
+        </View>
 
         {(formError || errorMessage) && (
           <Text style={styles.error}>{formError ?? errorMessage}</Text>
@@ -135,10 +163,10 @@ const styles = StyleSheet.create({
   button: {
     alignItems: "center",
     backgroundColor: "#2563eb",
-    borderRadius: 12,
+    borderRadius: 14,
     marginTop: 8,
     paddingHorizontal: 18,
-    paddingVertical: 14,
+    paddingVertical: 15,
   },
   buttonDisabled: {
     opacity: 0.7,
@@ -153,13 +181,19 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: "#ffffff",
-    borderRadius: 24,
-    gap: 14,
-    padding: 24,
+    borderColor: "rgba(37, 99, 235, 0.08)",
+    borderRadius: 28,
+    borderWidth: 1,
+    gap: 16,
+    padding: 26,
+    shadowColor: "#1e3a8a",
+    shadowOffset: { height: 12, width: 0 },
+    shadowOpacity: 0.12,
+    shadowRadius: 24,
     width: "100%",
   },
   container: {
-    backgroundColor: "#eef2ff",
+    backgroundColor: "#eff6ff",
     flex: 1,
     justifyContent: "center",
     padding: 20,
@@ -170,17 +204,20 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   error: {
+    backgroundColor: "#fef2f2",
+    borderRadius: 12,
     color: "#b91c1c",
     fontSize: 14,
     lineHeight: 20,
+    padding: 12,
   },
   field: {
     gap: 6,
   },
   input: {
     backgroundColor: "#f9fafb",
-    borderColor: "#d1d5db",
-    borderRadius: 12,
+    borderColor: "#dbeafe",
+    borderRadius: 14,
     borderWidth: 1,
     color: "#111827",
     fontSize: 16,
@@ -193,8 +230,29 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   status: {
-    color: "#6b7280",
+    color: "#475569",
     fontSize: 13,
+    fontWeight: "700",
+  },
+  statusDot: {
+    backgroundColor: "#94a3b8",
+    borderRadius: 999,
+    height: 8,
+    width: 8,
+  },
+  statusDotConnected: {
+    backgroundColor: "#16a34a",
+  },
+  statusDotError: {
+    backgroundColor: "#dc2626",
+  },
+  statusDotPending: {
+    backgroundColor: "#f59e0b",
+  },
+  statusRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 8,
   },
   title: {
     color: "#111827",

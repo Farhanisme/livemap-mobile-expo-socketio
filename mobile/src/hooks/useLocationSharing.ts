@@ -61,7 +61,7 @@ export function useLocationSharing({
       try {
         const socket = getSocket();
         if (!socket.connected) {
-          setLocationError("Realtime connection is not connected.");
+          setLocationError("Realtime connection disconnected. Trying to reconnect before sending updates.");
           return;
         }
 
@@ -138,7 +138,9 @@ export function useLocationSharing({
       const permission = await Location.requestForegroundPermissionsAsync();
 
       if (permission.status !== Location.PermissionStatus.GRANTED) {
-        setLocationError("Location permission is required to share your live position.");
+        setLocationError(
+          "Location permission is required to share your live position. Enable location permission and try again.",
+        );
         return;
       }
 
@@ -160,7 +162,7 @@ export function useLocationSharing({
       const message =
         error instanceof Error
           ? error.message
-          : "Unable to get your current location. Please check GPS/location settings.";
+          : "Unable to get your location. Please check GPS/location settings and try again.";
       setLocationError(message);
       isSharingRef.current = false;
       setIsSharing(false);
