@@ -9,6 +9,7 @@ type UseLocationSharingParams = {
   userId: string;
   roomId: string;
   name: string;
+  roomSyncVersion?: number;
 };
 
 type CurrentLocation = {
@@ -26,34 +27,31 @@ const WATCH_OPTIONS: Location.LocationOptions = {
   timeInterval: 3000,
 };
 
-export function useLocationSharing({ userId, roomId, name }: UseLocationSharingParams) {
+export function useLocationSharing({
+  userId,
+  roomId,
+  name,
+  roomSyncVersion = 0,
+}: UseLocationSharingParams) {
   const watcherRef = useRef<Location.LocationSubscription | null>(null);
   const lastSentAtRef = useRef<number | null>(null);
   const isSharingRef = useRef(false);
+  const currentLocationRef = useRef<CurrentLocation | null>(null);
   const [isSharing, setIsSharing] = useState(false);
   const [isRequestingPermission, setIsRequestingPermission] = useState(false);
   const [currentLocation, setCurrentLocation] = useState<CurrentLocation | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
 
-  const emitLocationUpdate = useCallback(
-    (location: Location.LocationObject, force = false) => {
-      const { latitude, longitude, accuracy, speed, heading } = location.coords;
+  const emitCurrentLocation = useCallback(
+    (nextLocation: CurrentLocation, force = false) => {
       const now = Date.now();
 
-      if (!isValidCoordinate(latitude, longitude)) {
+      if (!isValidCoordinate(nextLocation.latitude, nextLocation.longitude)) {
         setLocationError("Invalid location coordinates received.");
         return;
       }
 
-      const nextLocation: CurrentLocation = {
-        latitude,
-        longitude,
-        accuracy,
-        speed,
-        heading,
-        timestamp: location.timestamp || now,
-      };
-
+      currentLocationRef.current = nextLocation;
       setCurrentLocation(nextLocation);
 
       if (!force && !shouldSendLocationUpdate(lastSentAtRef.current, now)) {
@@ -71,22 +69,42 @@ export function useLocationSharing({ userId, roomId, name }: UseLocationSharingP
           userId,
           roomId,
           name,
-          latitude,
-          longitude,
-          accuracy,
-          speed,
-          heading,
+          latitude: nextLocation.latitude,
+          longitude: nextLocation.longitude,
+          accuracy: nextLocation.accuracy,
+          speed: nextLocation.speed,
+          heading: nextLocation.heading,
           timestamp: nextLocation.timestamp,
         };
 
         socket.emit("location_update", payload);
         lastSentAtRef.current = now;
+        setLocationError(null);
       } catch (error) {
         const message = error instanceof Error ? error.message : "Unable to send location update.";
         setLocationError(message);
       }
     },
     [name, roomId, userId],
+  );
+
+  const emitLocationUpdate = useCallback(
+    (location: Location.LocationObject, force = false) => {
+      const { latitude, longitude, accuracy, speed, heading } = location.coords;
+
+      emitCurrentLocation(
+        {
+          latitude,
+          longitude,
+          accuracy,
+          speed,
+          heading,
+          timestamp: location.timestamp || Date.now(),
+        },
+        force,
+      );
+    },
+    [emitCurrentLocation],
   );
 
   const stopSharing = useCallback(() => {
@@ -170,6 +188,14 @@ export function useLocationSharing({ userId, roomId, name }: UseLocationSharingP
       }
     };
   }, [roomId, userId]);
+
+  useEffect(() => {
+    if (!isSharingRef.current || !currentLocationRef.current) {
+      return;
+    }
+
+    emitCurrentLocation(currentLocationRef.current, true);
+  }, [emitCurrentLocation, roomSyncVersion]);
 
   return {
     currentLocation,

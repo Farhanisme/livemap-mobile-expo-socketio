@@ -31,9 +31,11 @@ const JOIN_TIMEOUT_MS = 10000;
 export function useSocket() {
   const socketRef = useRef<Socket | null>(null);
   const pendingJoinRef = useRef<PendingJoin | null>(null);
+  const activeSessionRef = useRef<JoinRoomPayload | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>("idle");
   const [roomUsersById, setRoomUsersById] = useState<Record<string, RemoteUser>>({});
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [roomSyncVersion, setRoomSyncVersion] = useState(0);
 
   const clearPendingJoin = useCallback(() => {
     const pendingJoin = pendingJoinRef.current;
@@ -66,6 +68,12 @@ export function useSocket() {
         const pendingJoin = pendingJoinRef.current;
         if (pendingJoin) {
           socket.emit("join_room", pendingJoin.payload);
+          return;
+        }
+
+        const activeSession = activeSessionRef.current;
+        if (activeSession) {
+          socket.emit("join_room", activeSession);
         }
       });
 
@@ -99,9 +107,11 @@ export function useSocket() {
             return usersById;
           }, {}),
         );
+        setRoomSyncVersion((version) => version + 1);
 
         const pendingJoin = pendingJoinRef.current;
         if (pendingJoin && payload.roomId === pendingJoin.payload.roomId) {
+          activeSessionRef.current = pendingJoin.payload;
           clearPendingJoin();
           pendingJoin.resolve({
             roomId: payload.roomId,
@@ -151,7 +161,9 @@ export function useSocket() {
 
       socket.on("server_error", (payload: ServerErrorPayload) => {
         const message = payload.message || "Server returned an error.";
-        setConnectionStatus("error");
+        if (pendingJoinRef.current) {
+          setConnectionStatus(socket.connected ? "connected" : "idle");
+        }
         setErrorMessage(message);
         rejectPendingJoin(message);
       });
@@ -221,6 +233,7 @@ export function useSocket() {
     connectionStatus,
     errorMessage,
     joinRoom,
+    roomSyncVersion,
     roomUsers: Object.values(roomUsersById),
   };
 }

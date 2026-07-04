@@ -13,6 +13,7 @@ type LiveMapScreenProps = {
   roomId: string;
   roomUsers: RemoteUser[];
   connectionStatus: ConnectionStatus;
+  roomSyncVersion: number;
 };
 
 const FALLBACK_REGION: Region = {
@@ -28,6 +29,7 @@ export function LiveMapScreen({
   roomId,
   roomUsers,
   connectionStatus,
+  roomSyncVersion,
 }: LiveMapScreenProps) {
   const mapRef = useRef<MapView | null>(null);
   const {
@@ -41,6 +43,7 @@ export function LiveMapScreen({
     userId,
     roomId,
     name,
+    roomSyncVersion,
   });
   const uniqueRoomUsers = Array.from(
     roomUsers.reduce<Map<string, RemoteUser>>((usersById, user) => {

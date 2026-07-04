@@ -57,6 +57,11 @@ io.on("connection", (socket) => {
       return;
     }
 
+    const existingUser = getUser(validation.value.roomId, validation.value.userId);
+    if (existingUser?.socketId && existingUser.socketId !== socket.id) {
+      io.sockets.sockets.get(existingUser.socketId)?.leave(validation.value.roomId);
+    }
+
     const user = joinRoom(validation.value, socket.id);
     socket.join(validation.value.roomId);
 

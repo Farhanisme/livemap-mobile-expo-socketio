@@ -16,7 +16,7 @@ type JoinedSession = {
 
 export default function App() {
   const userId = useMemo(() => generateUserId(), []);
-  const { connectionStatus, errorMessage, joinRoom, roomUsers } = useSocket();
+  const { connectionStatus, errorMessage, joinRoom, roomSyncVersion, roomUsers } = useSocket();
   const [joinedSession, setJoinedSession] = useState<JoinedSession | null>(null);
 
   async function handleJoin(name: string, roomId: string) {
@@ -54,6 +54,7 @@ export default function App() {
         connectionStatus={connectionStatus}
         name={joinedSession.name}
         roomId={joinedSession.roomId}
+        roomSyncVersion={roomSyncVersion}
         roomUsers={roomUsers.length > 0 ? roomUsers : joinedSession.roomUsers}
         userId={joinedSession.userId}
       />
