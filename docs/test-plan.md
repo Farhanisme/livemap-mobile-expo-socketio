@@ -1,6 +1,6 @@
 # Test Plan
 
-Status: Draft
+Status: Ready for demo
 
 This plan validates the LiveMap MVP demo flow. Run tests with the server on a laptop and the mobile app in Expo Go.
 

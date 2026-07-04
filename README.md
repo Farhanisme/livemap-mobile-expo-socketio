@@ -21,6 +21,39 @@ LiveMap MVP is a realtime foreground location sharing app for mobile computing d
 - Show connection, sharing, and last-updated states.
 - Keep users isolated by Socket.IO room.
 
+## Folder Structure
+
+```text
+docs/
+  prd.md
+  tasks.md
+  api.md
+  architecture.md
+  design.md
+  test-plan.md
+server/
+  package.json
+  tsconfig.json
+  .env.example
+  src/
+    index.ts
+    roomStore.ts
+    validators.ts
+    rateLimit.ts
+    types.ts
+mobile/
+  package.json
+  app.json
+  tsconfig.json
+  .env.example
+  src/
+    hooks/
+    screens/
+    services/
+    types/
+    utils/
+```
+
 ## Prerequisites
 
 - Node.js and npm installed.

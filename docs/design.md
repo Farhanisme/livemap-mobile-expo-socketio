@@ -1,6 +1,6 @@
 # Design
 
-Status: Draft
+Status: Ready for demo
 
 This document summarizes the implemented MVP UI for demo readiness.
 
