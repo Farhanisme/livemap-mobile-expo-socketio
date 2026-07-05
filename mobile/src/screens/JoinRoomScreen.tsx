@@ -89,9 +89,9 @@ export function JoinRoomScreen({
       style={styles.container}
     >
       <View style={styles.card}>
-        <Text style={styles.title}>LiveMap MVP</Text>
+        <Text style={styles.title}>Mobile Computing: LiveMap Application</Text>
         <Text style={styles.description}>
-          Share your realtime location with people in the same room.
+          Aplikasi Berbagi Lokasi Realtime Berbasis Mobile.
         </Text>
 
         <View style={styles.field}>
@@ -101,7 +101,7 @@ export function JoinRoomScreen({
             editable={!isConnecting}
             maxLength={NAME_MAX_LENGTH}
             onChangeText={setName}
-            placeholder="Al"
+            placeholder="Masukkan nama Anda..."
             returnKeyType="next"
             style={styles.input}
             value={name}
@@ -115,7 +115,7 @@ export function JoinRoomScreen({
             editable={!isConnecting}
             maxLength={ROOM_ID_MAX_LENGTH}
             onChangeText={setRoomId}
-            placeholder="KELAS-A"
+            placeholder="Masukkan Room ID..."
             returnKeyType="done"
             style={styles.input}
             value={roomId}
