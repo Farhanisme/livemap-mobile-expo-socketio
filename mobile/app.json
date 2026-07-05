@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "LiveMap MVP",
-    "slug": "livemap-mvp",
+    "name": "Mobile Computing: LiveMap Application",
+    "slug": "mobile-computing-livemap-application",
     "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",

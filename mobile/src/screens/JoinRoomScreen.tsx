@@ -91,7 +91,7 @@ export function JoinRoomScreen({
       <View style={styles.card}>
         <Text style={styles.title}>Mobile Computing: LiveMap Application</Text>
         <Text style={styles.description}>
-          Aplikasi Berbagi Lokasi Realtime Berbasis Mobile.
+          Aplikasi berbagi lokasi secara realtime berbasis Mobile.
         </Text>
 
         <View style={styles.field}>
@@ -202,6 +202,7 @@ const styles = StyleSheet.create({
     color: "#4b5563",
     fontSize: 15,
     lineHeight: 22,
+    textAlign: "center",
   },
   error: {
     backgroundColor: "#fef2f2",
@@ -258,5 +259,6 @@ const styles = StyleSheet.create({
     color: "#111827",
     fontSize: 30,
     fontWeight: "800",
+    textAlign: "center",
   },
 });
